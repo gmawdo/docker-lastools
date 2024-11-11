@@ -1,17 +1,36 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
+# Avoid prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    libtiff-dev libgeotiff-dev libgdal-dev \
-    libboost-system-dev libboost-thread-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev \
-    git cmake build-essential wget software-properties-common
+    wget \
+    libjpeg62 \
+    libpng-dev \
+    libtiff-dev \
+    libjpeg-dev \
+    libz-dev \
+    libproj-dev \
+    liblzma-dev \
+    libjbig-dev \
+    libzstd-dev \
+    libgeotiff-dev \
+    libwebp-dev \
+    libsqlite3-dev \
+    libstdc++6
 
-WORKDIR /opt
+WORKDIR /opt/lastools
 
-RUN git clone https://github.com/LAStools/LAStools
+# Download and extract LAStools
+RUN wget https://downloads.rapidlasso.de/LAStools.tar.gz && \
+    tar xvzf LAStools.tar.gz && \
+    rm LAStools.tar.gz
 
-WORKDIR /opt/LAStools
+# Set library path
+ENV LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
 
-RUN git checkout master && \
-    make all
+# Add LAStools to PATH
+ENV PATH /opt/lastools/bin/:$PATH
 
-ENV PATH /opt/LAStools/bin/:$PATH
+CMD ["tail", "-f", "/dev/null"]
